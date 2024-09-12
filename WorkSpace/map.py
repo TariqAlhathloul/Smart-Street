@@ -1,12 +1,12 @@
 import folium
-from get_location import current_location
+from get_location import get_current_location
 
 """
 display the location of the camera.
 returns the map as an html file.
 """
-
-location = current_location() # returns latitude and longitude
+# the get_current_location will return the latitude and longitude of the camera
+location = get_current_location()
 
 map = folium.Map(location=location, zoom_start=15)
 
