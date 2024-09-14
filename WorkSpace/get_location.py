@@ -21,7 +21,7 @@ def get_current_location():
     latitude = data['latitude']
     longitude = data['longitude']
     return latitude, longitude
-
+# الإمام عبدالله بن ثنيان آل سعود, الضباط, الزهراء, بلدية الملز, محافظة الرياض, منطقة الرياض, 12811, السعودية
 def get_road_name():
     """
     No parameters.
@@ -30,8 +30,10 @@ def get_road_name():
     latitude, longitude = get_current_location()
     geolocator = Nominatim(user_agent="smart-street")
     location = geolocator.reverse(f"{latitude}, {longitude}")
-    return location.address
+    zip_code = location.address.split(",")[6]
+    street_name = location.address.split(",")[0]
+    return street_name, zip_code
 # print(get_current_location())
 
-road_name = get_road_name()
-print(road_name)
+# road_name = (get_road_name())
+# print(road_name)
