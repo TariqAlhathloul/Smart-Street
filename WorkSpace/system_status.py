@@ -1,7 +1,6 @@
 import os
 import platform
 import psutil
-import streamlit as st
 
 def get_cpu_usage():
     return psutil.cpu_percent(interval=1)
@@ -13,24 +12,10 @@ def get_cpu_temperature():
 def get_platform_info():
     return platform.platform()
 
-totalmem = os.totalmem()
-freemem = os.freemem()
-usedmem = totalmem - freemem
 
-def main():
-    st.title("Raspberry Pi System Information")
+def print_system_status():
+    print("CPU Usage: ", get_cpu_usage(), "%")
+    print("CPU Temperature: ", get_cpu_temperature())
+    print("Platform: ", get_platform_info())
 
-    st.header("CPU Usage")
-    st.text(f"{get_cpu_usage()}%")
-
-    st.header("CPU Temperature")
-    st.text(get_cpu_temperature())
-
-    st.header("Memeory Usage RAM")
-    st.text(f"Total Memory: {totalmem}")
-
-    st.header("Platform Info")
-    st.text(get_platform_info())
-
-if __name__ == "__main__":
-    main()
+print_system_status()

@@ -100,7 +100,7 @@ while cap.isOpened():
                 #draw the bounding box on violated vehicle
                 frame = draw_bbox(frame, box, color=(0, 0, 255), thickness=10)
                 #save detected violation image
-                cv2.imwrite(f'../Data/violations/violation{counter}.jpg', frame)
+                cv2.imwrite(f'../Data/violations_images/violation{counter}.jpg', frame)
                 counter += 1
                 #get vehicle type
                 vehicle_type = ['bus', 'car', 'truck'][int(box.cls[0].item())]
