@@ -11,7 +11,7 @@ then extract the latitude, longitude, city
 def get_current_location():
     """
     No parameters.
-    the function will return the [latitude, longitude, city] of the camera.
+    the function will return the [latitude, longitude] of the camera.
     """
     response = requests.get('http://ipinfo.io/json')
     data = response.json()
@@ -27,12 +27,12 @@ def get_road_name():
     No parameters.
     the function will return the road name of the camera.
     """
-    latitude, longitude, _ = get_current_location()
+    latitude, longitude = get_current_location()
     geolocator = Nominatim(user_agent="smart-street")
     location = geolocator.reverse(f"{latitude}, {longitude}")
     road_name = location.address.split(",")[0]
     return road_name
 
-# # print(get_current_location())
+# print(get_current_location())
 # road_name = get_road_name()
 # print(road_name)

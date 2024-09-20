@@ -21,3 +21,7 @@ data = df.to_dict(orient='records')
 collection.insert_many(data)
 
 print("data inserted")
+
+#close the connection
+client.close()
+#TODO: convert the above code to a function and call it in the deployment/detect.py file
