@@ -9,7 +9,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from WorkSpace.get_location import get_current_location, get_road_name
-from WorkSpace.OCR import OCR
+from WorkSpace.OCR import read_license_plate
 
 
 def calculate_center(bbox):
@@ -104,12 +104,15 @@ while cap.isOpened():
                 #crop detected violation image and save it
                 x1, y1, x2, y2 = box.xyxy[0]
                 cv2.imwrite(f'../Data/violations_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
+                #read license plate number
+                #send croped image to ocr function
+                license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)])
                 counter += 1
                 #get vehicle type
                 vehicle_type = ['bus', 'car', 'truck'][int(box.cls[0].item())]
                 # append the violation data to the dataframe
                 with open('../Data/violations.csv', 'a') as file:
-                    file.write(f'{date},{license_plate_number}, {vehicle_type}, {violation_type}, {longitude}, {latitude}, {street_name}\n')
+                    file.write(f"{date}, {current_time.strftime('%H:%M:%S')}, {license_plate_number}, {vehicle_type}, {violation_type}, {longitude}, {latitude}, {street_name}\n")
     out.write(frame)
 
 cap.release()

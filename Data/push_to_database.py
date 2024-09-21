@@ -1,14 +1,16 @@
 import pandas as pd
 from pymongo import MongoClient
 import os
+from dotenv import load_dotenv
+load_dotenv()
 #dataset path
-csv_file_path = '../Data/Violations_detected.csv'
+csv_file_path = '../Data/violations.csv'
 
 #read the detected violations file
 df = pd.read_csv(csv_file_path)
 
 # connect to the database
-client = MongoClient(os.environ.get('stringcon'))
+client = MongoClient(os.getenv("CONNECTION_STRING"))
 
 # create a database and a collection
 db = client['DeepLearningCluster']  

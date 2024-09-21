@@ -43,11 +43,11 @@ def read_license_plate(image):
         if detection[2] > 0.5:
             license_plate_number.append(detection[1])
     
-    ' '.join(license_plate_number)
-    return license_plate_number
+    
+    return ' '.join(license_plate_number)
 
-# image = cv2.imread('../Data/violations_images/violation42.jpg')
-# results = read_license_plate(image)
-# print(results)
-# real license plate number: HRD 7863
-# output: MT 7862
+image = cv2.imread('../Data/violations_images/violation42.jpg')
+results = read_license_plate(image)
+print(results)
+# # real license plate number: HRD 7863
+# # output: MT 7862
