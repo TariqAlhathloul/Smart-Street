@@ -34,6 +34,6 @@ To run the violation detection script, use the this command:
 python deployment/detect.py
 ```
 
-<a href="https://youtu.be/H6nU9-7Iq54">
+<a href="https://youtu.be/H6nU9-7Iq54" target="_blank">
   <img src="https://img.youtube.com/vi/H6nU9-7Iq54/maxresdefault.jpg" alt="Watch the video" width="600" height="400">
 </a>
