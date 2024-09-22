@@ -47,8 +47,8 @@ def is_overtaking(vehicle_center, line_center):
     the function checks if a vehicle is overtaking in non-permitted areas
     """
     distance = vehicle_center[0] - line_center[0]
-    is_overtaking = distance > 120 and vehicle_center[0] > line_center[0] and distance < 800
     # distance threshold
+    is_overtaking = distance > 120 and vehicle_center[0] > line_center[0] and distance < 800
     return (is_overtaking, distance)
 
 #load the model
@@ -64,7 +64,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 #video writer
-output_path = '../resources/output_video(6).mp4'
+output_path = '../resources/output_video(14).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -109,9 +109,11 @@ while cap.isOpened():
         else:
             vehicle_center = calculate_center(box.xyxy)
             overtaking, distance = is_overtaking(vehicle_center, line_center)
-            #check if the vehicle is overtaking
-            if overtaking:
+            #check if the vehicle is overtaking and solid-yellow-line
+            if overtaking and line_center != (1, 1): 
                 cv2.putText(frame, "Violation Detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+                cv2.putText(frame, f"line center {line_center}", (20, 700), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+                cv2.putText(frame, f"car center{vehicle_center}", (20, 750), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                 print(f"distance {distance}")
                 #draw the bounding box on violated vehicle
                 frame = draw_bbox(frame, box, color=(0, 0, 255), thickness=10)
