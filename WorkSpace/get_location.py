@@ -1,6 +1,5 @@
 import geocoder
 import requests
-import json
 from geopy.geocoders import Nominatim
 
 """

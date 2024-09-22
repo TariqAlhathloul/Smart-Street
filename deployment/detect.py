@@ -7,6 +7,7 @@ from ultralytics import YOLO
 import datetime as dt
 import os
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from WorkSpace.get_location import get_current_location, get_road_name
 from WorkSpace.OCR import read_license_plate
@@ -29,6 +30,7 @@ def calculate_center(bbox):
 def draw_bbox(image, bbox, color=(0, 0, 255), thickness=2):
     """
     the function draws a bounding box on an image
+    we will use it to draw bbox only on the violated cars
     """
     pt1 = bbox.xywh[0][0:2].numpy()
     pt2 = bbox.xywh[0][2:4].numpy()
@@ -49,7 +51,7 @@ def is_overtaking(vehicle_center, line_center):
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../Data/example_video.MP4')
+cap = cv2.VideoCapture('../resources/example_video.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -58,7 +60,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 #video writer
-output_path = '../Data/output_video.mp4'
+output_path = '../resources/output_video.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -68,7 +70,10 @@ street_name = get_road_name()
 violation_type = 'overtaking'
 date = dt.datetime.now().strftime('%Y-%m-%d')
 license_plate_number = None
+#counter to index saved images
 counter = 0
+#skip frames for faster processing
+skip_frames = 5
 
 # initial center points
 line_center = (1, 1)
@@ -80,6 +85,9 @@ while cap.isOpened():
     if not success:
         break
 
+    current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+    if current_frame % skip_frames != 0:
+        continue
     #send frames to the model
     results = model(frame, conf=0.3)
 
@@ -103,16 +111,16 @@ while cap.isOpened():
                 frame = draw_bbox(frame, box, color=(0, 0, 255), thickness=10)
                 #crop detected violation image and save it
                 x1, y1, x2, y2 = box.xyxy[0]
-                cv2.imwrite(f'../Data/violations_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
+                cv2.imwrite(f'../resources/violations_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
+                counter += 1
                 #read license plate number
                 #send croped image to ocr function
-                license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)])
-                counter += 1
+                license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)], counter)
                 #get vehicle type
                 vehicle_type = ['bus', 'car', 'truck'][int(box.cls[0].item())]
                 # append the violation data to the dataframe
-                with open('../Data/violations.csv', 'a') as file:
-                    file.write(f"{date}, {current_time.strftime('%H:%M:%S')}, {license_plate_number}, {vehicle_type}, {violation_type}, {longitude}, {latitude}, {street_name}\n")
+                with open('../Database/violations.csv', 'a') as file:
+                    file.write(f"{date},{current_time.strftime('%H:%M:%S')},{license_plate_number},{vehicle_type},{violation_type},{longitude},{latitude},{street_name}\n")
     out.write(frame)
 
 cap.release()
