@@ -32,6 +32,7 @@ def get_road_name():
     road_name = location.address.split(",")[0]
     return road_name
 
-# print(get_current_location())
+# latitude, longitude = get_current_location()
+# print(longitude, latitude)
 # road_name = get_road_name()
 # print(road_name)

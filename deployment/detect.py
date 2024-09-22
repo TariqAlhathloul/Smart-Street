@@ -32,12 +32,13 @@ def draw_bbox(image, bbox, color=(0, 0, 255), thickness=2):
     the function draws a bounding box on an image
     we will use it to draw bbox only on the violated cars
     """
+    #convert to numpy
     pt1 = bbox.xywh[0][0:2].numpy()
     pt2 = bbox.xywh[0][2:4].numpy()
-
+    #calculate top left and bottom right points
     top_left = (int(pt1[0] - pt2[0] / 2), int(pt1[1] - pt2[1] / 2))
     bottom_right = (int(pt1[0] + pt2[0] / 2), int(pt1[1] + pt2[1] / 2))
-
+    #draw the bounding box
     bbox = cv2.rectangle(image, top_left, bottom_right, color, thickness)
     return bbox
 
@@ -45,13 +46,15 @@ def is_overtaking(vehicle_center, line_center):
     """
     the function checks if a vehicle is overtaking in non-permitted areas
     """
-    return vehicle_center[0] > line_center[0]
+    distance = vehicle_center[0] - line_center[0]
+    is_overtaking = vehicle_center[0] > line_center[0] and distance < 800
+    return (is_overtaking, distance)
 
 #load the model
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/example_video.MP4')
+cap = cv2.VideoCapture('../resources/chery-cross.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -60,7 +63,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 #video writer
-output_path = '../resources/output_video.mp4'
+output_path = '../resources/output_video(1).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -76,8 +79,8 @@ counter = 0
 skip_frames = 5
 
 # initial center points
-line_center = (1, 1)
-vehicle_center = (1, 1)
+#line_center = (1, 1)
+#vehicle_center = (1, 1)
 
 while cap.isOpened():
     #start reading framess
@@ -104,23 +107,28 @@ while cap.isOpened():
         # vehicle detected
         else:
             vehicle_center = calculate_center(box.xyxy)
+            overtaking, distance = is_overtaking(vehicle_center, line_center)
             #check if the vehicle is overtaking
-            if is_overtaking(vehicle_center, line_center):
+            if overtaking:
                 cv2.putText(frame, "Violation Detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+                print(f"distance {distance}")
                 #draw the bounding box on violated vehicle
                 frame = draw_bbox(frame, box, color=(0, 0, 255), thickness=10)
                 #crop detected violation image and save it
                 x1, y1, x2, y2 = box.xyxy[0]
                 cv2.imwrite(f'../resources/violations_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
                 counter += 1
-                #read license plate number
-                #send croped image to ocr function
-                license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)], counter)
-                #get vehicle type
-                vehicle_type = ['bus', 'car', 'truck'][int(box.cls[0].item())]
-                # append the violation data to the dataframe
-                with open('../Database/violations.csv', 'a') as file:
-                    file.write(f"{date},{current_time.strftime('%H:%M:%S')},{license_plate_number},{vehicle_type},{violation_type},{longitude},{latitude},{street_name}\n")
+                #check if there the license plate is detected
+                if box.cls[0].item() == 2:
+                    #read license plate number
+                    #send croped image to ocr function
+                    license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)], counter)
+                    #get vehicle type
+                    #{0: 'bus', 1: 'car', 2: 'license_plate', 3: 'solid-yellow-line', 4: 'truck'}
+                    vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]
+                    # append the violation data to the dataframe
+                    with open('../Database/violations_detected.csv', 'a') as file:
+                        file.write(f"{date},{current_time.strftime('%H:%M:%S')},{license_plate_number},{vehicle_type},{violation_type},{latitude},{longitude},{street_name}\n")
     out.write(frame)
 
 cap.release()
