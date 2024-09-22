@@ -47,7 +47,8 @@ def is_overtaking(vehicle_center, line_center):
     the function checks if a vehicle is overtaking in non-permitted areas
     """
     distance = vehicle_center[0] - line_center[0]
-    is_overtaking = vehicle_center[0] > line_center[0] and distance < 800
+    is_overtaking = distance > 120 and vehicle_center[0] > line_center[0] and distance < 800
+    # distance threshold
     return (is_overtaking, distance)
 
 #load the model
@@ -63,7 +64,7 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 #video writer
-output_path = '../resources/output_video(1).mp4'
+output_path = '../resources/output_video(6).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -79,8 +80,8 @@ counter = 0
 skip_frames = 5
 
 # initial center points
-#line_center = (1, 1)
-#vehicle_center = (1, 1)
+line_center = (1, 1)
+vehicle_center = (1, 1)
 
 while cap.isOpened():
     #start reading framess
@@ -88,9 +89,9 @@ while cap.isOpened():
     if not success:
         break
 
-    current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
-    if current_frame % skip_frames != 0:
-        continue
+    #current_frame = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+    #if current_frame % skip_frames != 0:
+        #continue
     #send frames to the model
     results = model(frame, conf=0.3)
 
