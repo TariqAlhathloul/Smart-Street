@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 #dataset path
-csv_file_path = '../Data/violations.csv'
+csv_file_path = '../Database/violations.csv'
 
 #read the detected violations file
 df = pd.read_csv(csv_file_path)
@@ -14,7 +14,7 @@ client = MongoClient(os.getenv("CONNECTION_STRING"))
 
 # create a database and a collection
 db = client['DeepLearningCluster']  
-collection = db['Violations_detected']  
+collection = db['Violations']  
 
 #convert dataframe to dictionary
 data = df.to_dict(orient='records')

@@ -29,9 +29,16 @@ This project focuses on detecting road lines using the YOLOv8n model, specifical
 
 ## Usage
 
-To run the violation detection script, use the this command:
+To run the violation detection on the example video, use the this command:
 ```bash
-python deployment/detect.py
+cd deployment
+python detect.py
+```
+
+To run live violation detection, use the this command:
+```bash
+cd deployment
+python run.py
 ```
 
 <a href="https://youtu.be/H6nU9-7Iq54" target="_blank">
