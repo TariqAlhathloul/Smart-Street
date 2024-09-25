@@ -1,5 +1,6 @@
 import cv2
 import easyocr
+import os
 
 """
 apply OCR on the detected violation cars to get the license plate number
@@ -8,7 +9,7 @@ apply OCR on the detected violation cars to get the license plate number
 # initialize the reader
 reader = easyocr.Reader(['en'], gpu=False, model_storage_directory='../Models')
 
-
+os.makedirs('', exist_ok=True)
 def read_license_plate(image, image_counter):
     """
     the function takes an image as input and returns the number on the  license plate

@@ -1,8 +1,9 @@
 import cv2
 import torch
+import numpy as np
 
-class Detecation:
 
+class Detect:
     def get_center(self, bbox: torch.Tensor):
         """
         the function takes a bounding box tensor and
@@ -17,7 +18,7 @@ class Detecation:
 
         return (center_x, center_y)
     
-    def draw_bbox(self, frame, bbox, color=(0, 0, 255), thickness=2):
+    def draw_bbox(self, frame: np.ndarray, bbox: torch.Tensor, color=(0, 0, 255), thickness: int =2):
         """
         the function draws a bounding box on an image
         we will use it to draw bounding boxes only on the violated cars
@@ -29,12 +30,12 @@ class Detecation:
         top_left = (int(pt1[0] - pt2[0] / 2), int(pt1[1] - pt2[1] / 2))
         bottom_right = (int(pt1[0] + pt2[0] / 2), int(pt1[1] + pt2[1] / 2))
         #draw the bounding box
-        bbox = cv2.rectangle(frame, top_left, bottom_right, color, thickness)
-        return bbox
-    
-    def is_overtaking(self, veicle_center, line_center):
+        cv2.rectangle(frame, top_left, bottom_right, color, thickness)
+        return frame
+
+    def is_overtaking(self, vehicle_center: tuple, line_center: tuple):
         """
-        the function takes a tuple of 'veicle' and 'solid-line' center
+        the function takes a tuple of 'veicle' and 'solid-line' centers
         and checks if the vehicle is overtaking in non-permitted areas
         return True if the vehicle is overtaking, False otherwise
         """
@@ -43,15 +44,15 @@ class Detecation:
         #first get the line center position based on the x-axis
         if line_center[0] > 1250:
             #meaning that the line is on the right side
-            distance = veicle_center[0] - line_center[0]
+            distance = vehicle_center[0] - line_center[0]
             # distance threshold
-            is_overtaking = distance > 120 and veicle_center[0] > line_center[0] and distance < 800
+            is_overtaking = distance > 120 and vehicle_center[0] > line_center[0] and distance < 800
             violation_type = 'overtaking from the right'
         else:
             #meaning that the line is on the left side
-            distance = line_center[0] - veicle_center[0]
+            distance = line_center[0] - vehicle_center[0]
             # distance threshold
-            is_overtaking = veicle_center[0] < line_center[0]
+            is_overtaking = vehicle_center[0] < line_center[0]
             violation_type = 'overtaking from the left'
 
         return is_overtaking, violation_type

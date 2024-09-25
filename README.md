@@ -41,6 +41,6 @@ cd deployment
 python run.py
 ```
 
-<a href="https://youtu.be/H6nU9-7Iq54" target="_blank">
-  <img src="https://img.youtube.com/vi/H6nU9-7Iq54/maxresdefault.jpg" alt="Watch the video" width="600" height="400">
+<a href="https://www.youtube.com/watch?v=_5nmKUGjOls" target="_blank">
+  <img src="https://img.youtube.com/vi/_5nmKUGjOls/maxresdefault.jpg" alt="Watch the video" width="600" height="400">
 </a>

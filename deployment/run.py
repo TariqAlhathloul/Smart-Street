@@ -6,9 +6,12 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from WorkSpace.get_location import get_current_location, get_road_name
 from WorkSpace.OCR import read_license_plate
-from WorkSpace.Detecation import Detecation
+from WorkSpace.Detection import Detect
 
-detect = Detecation()
+os.makedirs('../resources/violations_images', exist_ok=True)
+os.makedirs('../Database', exist_ok=True)
+
+detect = Detect()
 
 # camera information
 latitude, longitude = get_current_location()
@@ -16,7 +19,6 @@ street_name = get_road_name()
 date = dt.datetime.now().strftime('%Y-%m-%d')
 
 # load model
-
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
@@ -30,7 +32,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
 #video writer
-output_path = '../resources/outPut.mp4'
+output_path = '../resources/outPut(3).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -60,16 +62,13 @@ while cap.isOpened():
     results = model(frame, conf=0.3)
 
     for box in results[0].boxes:
-
         # solid-yellow-line detected
-        print(box.cls)
-        print(box.xyxy)
         if 3 in box.cls:
-            line_center = detect.calculate_center(box.xyxy)
+            line_center = detect.get_center(box.xyxy)
 
         # vehicle detected
         elif box.cls in vehicles:
-            vehicle_center = detect.calculate_center(box.xyxy)
+            vehicle_center = detect.get_center(box.xyxy)
 
             is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
 
@@ -88,7 +87,8 @@ while cap.isOpened():
                     # send the cropped image to the ocr model
                     license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)], counter)
                     #get the vehicle type
-                    vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    #after have all the information, save it to the database
+                    vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    
+                    #after have all the information, save it to the database
                     try:
                         with open('../Database/violations_detected.csv', 'a') as file:
                             file.write(f"{date},{current_time.strftime('%H:%M:%S')},{license_plate_number},{vehicle_type},{violation_type},{latitude},{longitude},{street_name}\n")
