@@ -7,9 +7,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from WorkSpace.get_location import get_current_location, get_road_name
 from WorkSpace.OCR import read_license_plate
 from WorkSpace.Detection import Detect
+from WorkSpace.insert_data import insert_data
 
-os.makedirs('../resources/violations_images', exist_ok=True)
-os.makedirs('../Database', exist_ok=True)
+os.makedirs('../resources/violation_images', exist_ok=True)
 
 detect = Detect()
 
@@ -32,7 +32,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
 #video writer
-output_path = '../resources/outPut(3).mp4'
+output_path = '../resources/outPuts/outPut(1).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -74,26 +74,23 @@ while cap.isOpened():
 
             if is_violating:
                 #draw red bounding box on the violating vehicle
-                frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=10)
+                frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #put text
                 cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                 #crop and save the image of violating vehicle
                 x1, y1, x2, y2 = box.xyxy[0]
-                cv2.imwrite(f'../resources/violations_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
+                cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
                 counter += 1
 
                 #license plate detected
                 if 2 in box.cls:
                     # send the cropped image to the ocr model
-                    license_plate_number = read_license_plate(frame[int(y1):int(y2), int(x1):int(x2)], counter)
+                    license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)
                     #get the vehicle type
                     vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    
-                    #after have all the information, save it to the database
-                    try:
-                        with open('../Database/violations_detected.csv', 'a') as file:
-                            file.write(f"{date},{current_time.strftime('%H:%M:%S')},{license_plate_number},{vehicle_type},{violation_type},{latitude},{longitude},{street_name}\n")
-                    except Exception as e:
-                        print(f"Error: {e}")
+                    #after having all the information, save it to the database
+                    if license_plate_number != None:
+                        insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
     out.write(frame)
 
 

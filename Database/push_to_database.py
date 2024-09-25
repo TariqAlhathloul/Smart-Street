@@ -14,7 +14,7 @@ client = MongoClient(os.getenv("CONNECTION_STRING"))
 
 # create a database and a collection
 db = client['DeepLearningCluster']  
-collection = db['Violations']  
+collection = db['Violations-1']  
 
 #convert dataframe to dictionary
 data = df.to_dict(orient='records')

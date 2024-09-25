@@ -4,6 +4,7 @@ import numpy as np
 
 
 class Detect:
+    
     def get_center(self, bbox: torch.Tensor):
         """
         the function takes a bounding box tensor and
