@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 import datetime as dt
+import numpy as np
 import cv2
 import os
 import sys
@@ -15,14 +16,15 @@ detect = Detect()
 
 # camera information
 latitude, longitude = get_current_location()
-street_name = get_road_name()
+#street_name = get_road_name()
+street_name = 'steet'
 date = dt.datetime.now().strftime('%Y-%m-%d')
 
 # load model
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/example_video.MP4')
+cap = cv2.VideoCapture('../resources/inputs/chery-cross - Trim2.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -32,7 +34,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
 #video writer
-output_path = '../resources/outPuts/outPut(1).mp4'
+output_path = '../resources/outPuts/long_right_output.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -61,11 +63,14 @@ while cap.isOpened():
     #send frames to the model
     results = model(frame, conf=0.3)
 
-    for box in results[0].boxes:
+    for box, mask in zip(results[0].boxes, results[0].masks.xy):
         # solid-yellow-line detected
         if 3 in box.cls:
+            #get line center
             line_center = detect.get_center(box.xyxy)
-
+            #get solid-yellow-line masks
+            line_points = np.int32([mask])
+            cv2.fillPoly(frame, line_points, (150, 150, 150), cv2.LINE_AA)
         # vehicle detected
         elif box.cls in vehicles:
             vehicle_center = detect.get_center(box.xyxy)
@@ -73,10 +78,6 @@ while cap.isOpened():
             is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
 
             if is_violating:
-                #draw red bounding box on the violating vehicle
-                frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
-                #put text
-                cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                 #crop and save the image of violating vehicle
                 x1, y1, x2, y2 = box.xyxy[0]
                 cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
@@ -84,6 +85,10 @@ while cap.isOpened():
 
                 #license plate detected
                 if 2 in box.cls:
+                    #draw red bounding box on the violating vehicle
+                    frame = detect.draw_bbox(frame, box, color=(0, 0, 255),text=f'LC:{line_center}, VC{vehicle_center}', thickness=5)
+                    #put text
+                    cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                     # send the cropped image to the ocr model
                     license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)
                     #get the vehicle type
