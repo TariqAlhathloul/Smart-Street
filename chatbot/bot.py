@@ -6,14 +6,17 @@ from langchain_pinecone import PineconeVectorStore
 from langchain.prompts import PromptTemplate
 from langchain.schema import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from langchain.chains import create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from chatbot.Audio import Audio
+from Audio import Audio
+import datetime as dt
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 INDEX_NAME = os.getenv("INDEX_NAME")
+
+os.makedirs("./chat_history", exist_ok=True)
+os.makedirs("./chat_history/voice_history", exist_ok=True)
+os.makedirs("./chat_history/text_history", exist_ok=True)
 
 
 embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
@@ -36,6 +39,7 @@ template = """
 
 مثال على إجابة:
 تم رصد المخالفات في الطرق التالية: طريق الملك فهد, طريق المطار , طريق الملك سلمان
+
 "إذا كنت لا تعرف الإجابة، ببساطة قل: "لا أعرف.
 context: {context}
 
@@ -48,7 +52,6 @@ prompt = PromptTemplate(
     input_variables=["context", "question"],
     template=template,
 )
-
 
 
 def format_docs(docs):
@@ -65,22 +68,27 @@ chain = (
 #chat history
 history = []
 
-#counter for the audio files
-counter = 0
-
-#initialize the audio class
-Au = Audio()
-
 def start():
+    
+    #counter for the audio files
+    counter = 0
+
+    #initialize the audio class
+    Au = Audio()
+    Au.play_sound("welcome.mp3")
     while True:
         #record question audio from user
-        recording, _ = Au.record_audio()
+        try:
+            recording, _ = Au.record_audio()
+        except Exception as e:
+            print(f"Error recording audio: {e}")
+            continue
 
         #save audio recorded to a file
-        Au.write_audio(recording, f"voice_records/question{counter}.mp3")
+        Au.write_audio(recording, f"./chat_history/voice_history/question{counter}.mp3")
 
         #convert saved audio to text
-        question = Au.voice_to_text(f"./voice_records/question{counter}.mp3")
+        question = Au.voice_to_text(f"./chat_history/voice_history/question{counter}.mp3")
 
         #print the question to the terminal and save it to the history
         Au.printAr(f"المستخدم: {question}")
@@ -94,14 +102,21 @@ def start():
         history.append(answer)
 
         #convert the answer to voice
-        Au.text_to_voice(answer, f"./voice_records/answer{counter}.mp3")
+        Au.text_to_voice(answer, f"./chat_history/voice_history/answer{counter}.mp3")
 
         #play the answer
-        Au.play_sound(f"./voice_records/answer{counter}.mp3")
+        Au.play_sound(f"./chat_history/voice_history/answer{counter}.mp3")
+        
+        #end the loop
+        if question == ["إنهاء", "انها", "انهاء", "خروج"]:
+            break
         counter += 1
 
 if __name__ == "__main__":
-    start()
-    with open("./history.txt", "a") as f:
-        f.write("\n".join(history))
+    try:
+        start()
+    except KeyboardInterrupt:
+        now = dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open(f"./chat_history/text_history/history{now}.txt", "a") as file:
+            file.write("\n".join(history))
     
