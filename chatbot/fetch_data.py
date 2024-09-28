@@ -1,5 +1,6 @@
 """
 fetch data from the database
+and store it in a text file
 """
 
 import os
@@ -25,7 +26,17 @@ documents = collection.find()
 # Iterate over documents and create a text file for each
 for i, document in enumerate(documents):
     # Prepare the text content from document fields
-    text = (f"تم رصد مخالفة مرورية في الوقت {document.get('time') } في التاريخ الموافق {document.get('date') } احداثيات المخالفة {document.get('latitude')}, {document.get('longitude')} نوع المخالفة {document.get('violation_type')} رقم اللوحة {document.get('license_plate_number')} نوع المركبة {document.get('vehicle_type')} في طريق {document.get('street_name')}")
+    text = (
+f"""{document.get('time')} تم رصد مخالفة مرورية في الوقت 
+{document.get('date') } في التاريخ الموافق 
+{document.get('latitude')}, {document.get('longitude')} احداثيات المخالفة 
+{document.get('violation_type')}  نوع المخالفة 
+{document.get('license_plate_number')} رقم اللوحه
+{document.get('vehicle_type')} نوع المركبة
+اسم الطريق {document.get('street_name')} 
+{i}رقم المخالفة""")
+    
+    # write to the text file
     with open(os.path.join(dir, f'text{i}.txt'), 'w') as file:
         file.write(text)
 
