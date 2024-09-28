@@ -20,7 +20,6 @@ class Audio:
         #duration of the recording in seconds
         self.senconds = 7
         self.frames = self.samplerate * self.senconds
-        print("Chatbot initialized.")
 
     def record_audio(self)-> tuple:
         """"
