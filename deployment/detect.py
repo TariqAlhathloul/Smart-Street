@@ -22,7 +22,7 @@ date = dt.datetime.now().strftime('%Y-%m-%d')
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/car-cross.MP4')
+cap = cv2.VideoCapture('../resources/example_video.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -73,6 +73,10 @@ while cap.isOpened():
             is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
 
             if is_violating:
+                #draw red bounding box on the violating vehicle
+                frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
+                #put text
+                cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
                 #crop and save the image of violating vehicle
                 x1, y1, x2, y2 = box.xyxy[0]
                 #cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
@@ -81,17 +85,14 @@ while cap.isOpened():
                 #license plate detected
                 if 2 in box.cls:
                     # send the cropped image to the ocr model
-                    license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)
-                     #draw red bounding box on the violating vehicle
-                    frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
-                    #put text
-                    cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)  
+                    license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)  
                     #get the vehicle type
                     vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    
                     #after having all the information, save it to the database
                     if license_plate_number != None:
+                        print("violation detected !")
                         #insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
-    #out.write(frame)
+    out.write(frame)
 
 
 cap.release()
