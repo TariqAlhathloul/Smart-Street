@@ -22,7 +22,7 @@ date = dt.datetime.now().strftime('%Y-%m-%d')
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/example_video.MP4')
+cap = cv2.VideoCapture('../resources/inputs/left-cross-4.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -32,7 +32,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
 #video writer
-output_path = '../resources/outPut_video(1).mp4'
+output_path = '../resources/outpus/OutPut(2).mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
