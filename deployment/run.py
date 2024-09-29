@@ -32,7 +32,11 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
 #video writer
+<<<<<<< HEAD
 output_path = '../resources/outPuts/outPut(1).mp4'
+=======
+output_path = '../resources/outPut(1).mp4'
+>>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
