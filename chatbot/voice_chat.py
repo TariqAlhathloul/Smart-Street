@@ -20,7 +20,7 @@ os.makedirs("./chat_history/text_history", exist_ok=True)
 
 
 embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-vector_store = PineconeVectorStore(index_name='violations-data-10',embedding=embeddings)
+vector_store = PineconeVectorStore(index_name='violations-data-11',embedding=embeddings)
 
 llm = ChatOpenAI(verbose=True, temperature=0.5, model="gpt-4")
 
@@ -35,10 +35,21 @@ template = """
 عدد المخالفات المرورية   في يوم 2024/09/22 الموافق يوم الأحد كان 17 مخالفة. نوع المخالفة: تجاوز من الاكتاف
 
 مثال على سؤال:
-ما هي الأماكن التي تم رصد المخالفات فيها؟
+ما هي الطرق التي تم رصد المخالفات فيها؟
 
 مثال على إجابة:
 تم رصد المخالفات في الطرق التالية: طريق الملك فهد, طريق المطار , طريق الملك سلمان
+
+مثال على سؤال:
+ما هي الأوقات التي تم فيها رصد المخالفات؟
+
+مثال على إجابة:
+تم رصد اغلب المخالفات في الفتره بين الثامنه والعاشره صباحا
+
+مثال على سؤال:
+ما هو مجموع المخالفات المسجلة في النظام؟
+مجموع المخالفات المسجلة في النظام هو خمسه وسبعون مخالفة
+
 
 "إذا كنت لا تعرف الإجابة، ببساطة قل: "لا أعرف.
 context: {context}
@@ -57,9 +68,12 @@ prompt = PromptTemplate(
 def format_docs(docs):
     return "\n\n".join([d.page_content for d in docs])
 
+def query_docs(context, question):
+    return vector_store.query(question, context)
+    
 
 chain = (
-    {"context": vector_store.as_retriever() | format_docs, "question": RunnablePassthrough()}
+    {"context": vector_store.as_retriever(search_type="mmr", search_kwargs={'k': 70, 'fetch_k': 50}) | format_docs, "question": RunnablePassthrough()}
     |prompt
     |llm
     |StrOutputParser()
@@ -75,7 +89,7 @@ def start():
 
     #initialize the audio class
     Au = Audio()
-    Au.play_sound("welcome.mp3")
+    #Au.play_sound("welcome.mp3")
     while True:
         #record question audio from user
         try:
