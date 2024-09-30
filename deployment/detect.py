@@ -1,9 +1,5 @@
 from ultralytics import YOLO
 import datetime as dt
-<<<<<<< HEAD
-import numpy as np
-=======
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
 import cv2
 import os
 import sys
@@ -19,23 +15,14 @@ detect = Detect()
 
 # camera information
 latitude, longitude = get_current_location()
-<<<<<<< HEAD
-#street_name = get_road_name()
-street_name = 'steet'
-=======
 street_name = get_road_name()
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
 date = dt.datetime.now().strftime('%Y-%m-%d')
 
 # load model
 model = YOLO('../Models/best.onnx', task='segment')
 
 #start video capture
-<<<<<<< HEAD
-cap = cv2.VideoCapture('../resources/inputs/chery-cross - Trim2.MP4')
-=======
-cap = cv2.VideoCapture('../resources/example_video.MP4')
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
+cap = cv2.VideoCapture('../resources/inputs/left-cross-4.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -44,12 +31,9 @@ height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 print(f"width: {width}, height: {height}, fps: {fps}")
 
+
 #video writer
-<<<<<<< HEAD
-output_path = '../resources/outPuts/long_right_output.mp4'
-=======
-output_path = '../resources/outPut_video(1).mp4'
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
+output_path = '../resources/outPuts/cross_outPut4.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -76,24 +60,13 @@ while cap.isOpened():
     cv2.putText(frame, current_time.strftime('%Y-%m-%d %H:%M:%S'), (20, 1850), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
 
     #send frames to the model
-    results = model(frame, conf=0.3)
+    results = model(frame, conf=0.3, imgsz=640)
 
-<<<<<<< HEAD
-    for box, mask in zip(results[0].boxes, results[0].masks.xy):
-        # solid-yellow-line detected
-        if 3 in box.cls:
-            #get line center
-            line_center = detect.get_center(box.xyxy)
-            #get solid-yellow-line masks
-            line_points = np.int32([mask])
-            cv2.fillPoly(frame, line_points, (150, 150, 150), cv2.LINE_AA)
-=======
     for box in results[0].boxes:
         # solid-yellow-line detected
         if 3 in box.cls:
             line_center = detect.get_center(box.xyxy)
 
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
         # vehicle detected
         elif box.cls in vehicles:
             vehicle_center = detect.get_center(box.xyxy)
@@ -101,11 +74,6 @@ while cap.isOpened():
             is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
 
             if is_violating:
-<<<<<<< HEAD
-                #crop and save the image of violating vehicle
-                x1, y1, x2, y2 = box.xyxy[0]
-                cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
-=======
                 #draw red bounding box on the violating vehicle
                 frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #put text
@@ -113,32 +81,18 @@ while cap.isOpened():
                 #crop and save the image of violating vehicle
                 x1, y1, x2, y2 = box.xyxy[0]
                 #cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
                 counter += 1
 
                 #license plate detected
                 if 2 in box.cls:
-<<<<<<< HEAD
-                    #draw red bounding box on the violating vehicle
-                    frame = detect.draw_bbox(frame, box, color=(0, 0, 255),text=f'LC:{line_center}, VC{vehicle_center}', thickness=5)
-                    #put text
-                    cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
-                    # send the cropped image to the ocr model
-                    license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)
-=======
                     # send the cropped image to the ocr model
                     license_plate_number = read_license_plate(frame[int(y1)-10:int(y2), int(x1)-10:int(x2)], counter)  
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
                     #get the vehicle type
                     vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    
                     #after having all the information, save it to the database
                     if license_plate_number != None:
-<<<<<<< HEAD
-                        insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
-=======
                         print("violation detected !")
-                        #insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
->>>>>>> 34c022587f137417b1e989e567f190fc4c07de60
+                        insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
     out.write(frame)
 
 
