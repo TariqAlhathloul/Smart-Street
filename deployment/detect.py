@@ -4,7 +4,7 @@ import cv2
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from WorkSpace.get_location import get_current_location, get_road_name
+from WorkSpace.camera_gps_coordinates import get_current_location, get_road_name
 from WorkSpace.OCR import read_license_plate
 from WorkSpace.Detection import Detect
 from WorkSpace.insert_data import insert_data
@@ -22,7 +22,7 @@ date = dt.datetime.now().strftime('%Y-%m-%d')
 model = YOLO('../Models/best(1).onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/inputs/left-chery-cross-1 (1).MP4')
+cap = cv2.VideoCapture(0)
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -33,9 +33,9 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 
 
 #video writer
-output_path = '../resources/outPuts/leftcross_outPutFull.mp4'
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+output_path = '../resources/demotest(1).mp4'
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter(output_path, fourcc, 15, (width, height))
 
 
 #counter to index saved images
