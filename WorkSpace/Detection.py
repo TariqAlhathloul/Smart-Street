@@ -48,10 +48,8 @@ class Detect:
             #meaning that the line is on the right side
             distance = abs(vehicle_center[0] - line_center[0])
             # distance threshold
-            is_overtaking = vehicle_center[0] > line_center[0] and distance < 400
+            is_overtaking = vehicle_center[0] > line_center[0]
             violation_type = 'overtaking from the right'
-            #debug
-            print(distance)
         else:
             #meaning that the line is on the left side
             distance = line_center[0] - vehicle_center[0]
