@@ -1,9 +1,12 @@
 import cv2
 import torch
+import os
+import sys
 import numpy as np
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from chatbot.Audio import Audio
 
-
-class Detect:
+class Detect(Audio):
     
     def get_center(self, bbox: torch.Tensor):
         """
@@ -50,11 +53,13 @@ class Detect:
             # distance threshold
             is_overtaking = vehicle_center[0] > line_center[0]
             violation_type = 'overtaking from the right'
+            sound_file = '../resources/warning_sounds/overtaking_right.mp3'
         else:
             #meaning that the line is on the left side
             distance = line_center[0] - vehicle_center[0]
             # distance threshold
             is_overtaking = vehicle_center[0] < line_center[0]
             violation_type = 'overtaking from the left'
+            sound_file = '../resources/warning_sounds/overtaking_left.mp3'
 
-        return is_overtaking, violation_type
+        return is_overtaking, violation_type, sound_file
