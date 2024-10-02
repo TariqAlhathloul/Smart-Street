@@ -8,6 +8,7 @@ from WorkSpace.camera_gps_coordinates import get_current_location, get_road_name
 from WorkSpace.OCR import read_license_plate
 from WorkSpace.Detection import Detect
 from WorkSpace.insert_data import insert_data
+from chatbot.Audio import Audio
 
 os.makedirs('../resources/violation_images', exist_ok=True)
 
@@ -22,7 +23,7 @@ date = dt.datetime.now().strftime('%Y-%m-%d')
 model = YOLO('../Models/best(1).onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('../resources/inputs/car-cross.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -33,9 +34,9 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 
 
 #video writer
-output_path = '../resources/demotest(1).mp4'
+output_path = '../resources/outpus/car-cross-outPut.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter(output_path, fourcc, 15, (width, height))
+out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
 
 #counter to index saved images
@@ -72,7 +73,7 @@ while cap.isOpened():
         # vehicle detected
         elif int(box.cls.item()) == 0:
             vehicle_center = detect.get_center(box.xyxy)
-            is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
+            is_violating, violation_type, sound = detect.is_overtaking(vehicle_center, line_center)
             #print("vehicle center ", vehicle_center)
             #cv2.circle(frame, vehicle_center, 10, (0, 255, 0), -1)
 
@@ -81,9 +82,10 @@ while cap.isOpened():
                 frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #put text
                 cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
+                #detect.play_sound(sound)
                 #crop and save the image of violating vehicle
                 x1, y1, x2, y2 = box.xyxy[0]
-                #cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
+                cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
                 counter += 1
 
                 #license plate detected
