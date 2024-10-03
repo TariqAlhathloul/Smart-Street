@@ -5,7 +5,7 @@ import sys
 import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from chatbot.Audio import Audio
-
+au = Audio()
 class Detect(Audio):
     
     def get_center(self, bbox: torch.Tensor):
@@ -47,19 +47,19 @@ class Detect(Audio):
         is_overtaking = False
         #first get the line center position based on the x-axis
         #because the camera captures a 2592x1920 we will consider the threshold to be 1296
-        if line_center[0] > 1296:
-            #meaning that the line is on the right side
-            distance = abs(vehicle_center[0] - line_center[0])
-            # distance threshold
-            is_overtaking = vehicle_center[0] > line_center[0]
+        if line_center[0] >= 1296 and vehicle_center[0] > line_center[0]:
+            is_overtaking = True
             violation_type = 'overtaking from the right'
-            sound_file = '../resources/warning_sounds/overtaking_right.mp3'
-        else:
+            #au.play_sound('../resources/warning_sounds/overtaking_right.mp3')
+        elif line_center[0] < 1296 and vehicle_center[0] < line_center[0]:
             #meaning that the line is on the left side
             distance = line_center[0] - vehicle_center[0]
             # distance threshold
-            is_overtaking = vehicle_center[0] < line_center[0]
+            is_overtaking = True
             violation_type = 'overtaking from the left'
-            sound_file = '../resources/warning_sounds/overtaking_left.mp3'
+            #au.play_sound('../resources/warning_sounds/overtaking_left.mp3')
+        else:
+            print("no violation")
+            is_overtaking = False
 
-        return is_overtaking, violation_type, sound_file
+        return is_overtaking, violation_type
