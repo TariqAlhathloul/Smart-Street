@@ -83,7 +83,7 @@ while cap.isOpened():
             print("line center ", line_center, is_violating)
             cv2.circle(frame, vehicle_center, 10, (0, 255, 0), -1)            
 
-            if is_violating:
+            if is_violating and line_center != (1, 1):
                 #draw red bounding box on the violating vehicle
                 frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #crop and save the image of violating vehicle

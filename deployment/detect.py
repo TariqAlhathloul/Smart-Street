@@ -23,7 +23,7 @@ date = dt.datetime.now().strftime('%Y-%m-%d')
 model = YOLO('../Models/best(1).onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture('../resources/inputs/car-cross.MP4')
+cap = cv2.VideoCapture('../resources/example_video.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -34,7 +34,7 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 
 
 #video writer
-output_path = '../resources/outpus/car-cross-outPut.mp4'
+output_path = '../resources/outpus/OUTPUT.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
@@ -72,12 +72,12 @@ while cap.isOpened():
         # vehicle detected
         elif int(box.cls.item()) == 0:
             vehicle_center = detect.get_center(box.xyxy)
-            is_violating, violation_type, sound = detect.is_overtaking(vehicle_center, line_center)
+            is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center, width)
             print("vehicle center ", vehicle_center, "is violating: ", is_violating)
             print("line center ", line_center)
             #cv2.circle(frame, vehicle_center, 10, (0, 255, 0), -1)
 
-            if is_violating:
+            if is_violating and line_center != (1, 1):
                 #draw red bounding box on the violating vehicle
                 frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #put text

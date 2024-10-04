@@ -36,7 +36,7 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 
 
 #video writer
-output_path = '../resources/OUTPUT(1).mp4'
+output_path = '../resources/OUTPUT_VIDEO.avi'
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter(output_path, fourcc, 15, (width, height))
 
@@ -60,7 +60,12 @@ while cap.isOpened():
 
     #write the current time and date on the frames
     current_time = dt.datetime.now()
-    cv2.putText(frame, current_time.strftime('%Y-%m-%d %H:%M:%S'), (20, 1850), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+    #cv2.putText(frame, current_time.strftime('%Y-%m-%d %H:%M:%S'), (20, 10), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+    text = current_time.strftime('%Y-%m-%d %H:%M:%S')
+    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 2, 5)[0]
+    text_x = 20
+    text_y = height - 20
+    cv2.putText(frame, text, (5, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
     #send frames to the model
     results = model(frame, conf=0.4, imgsz=640)
@@ -82,7 +87,7 @@ while cap.isOpened():
             cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
             
 
-            if is_violating:
+            if is_violating and line_center != (1, 1):
                 #draw red bounding box on the violating vehicle
                 frame = detect.draw_bbox(frame, box, color=(0, 0, 255), thickness=5)
                 #put text

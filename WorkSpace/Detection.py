@@ -6,6 +6,8 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from chatbot.Audio import Audio
 au = Audio()
+
+
 class Detect(Audio):
     
     def get_center(self, bbox: torch.Tensor):
@@ -37,21 +39,51 @@ class Detect(Audio):
         cv2.rectangle(frame, top_left, bottom_right, color, thickness)
         return frame
 
-    def is_overtaking(self, vehicle_center: tuple, line_center: tuple):
+    def is_overtaking(self, vehicle_center: tuple, line_center: tuple, width):
         """
         the function takes a tuple of 'veicle' and 'solid-line' centers
         and checks if the vehicle is overtaking in non-permitted areas
         return True if the vehicle is overtaking, False otherwise
         """
+        threshold = int(width / 2)
         violation_type = ''
         is_overtaking = False
         #first get the line center position based on the x-axis
         #because the camera captures a 2592x1920 we will consider the threshold to be 1296
-        if line_center[0] >= 1296 and vehicle_center[0] > line_center[0]:
+        if line_center[0] > threshold and vehicle_center[0] > line_center[0]:
             is_overtaking = True
             violation_type = 'overtaking from the right'
             #au.play_sound('../resources/warning_sounds/overtaking_right.mp3')
-        elif line_center[0] < 1296 and vehicle_center[0] < line_center[0]:
+        elif line_center[0] < threshold and vehicle_center[0] < line_center[0]:
+            #meaning that the line is on the left side
+            # distance threshold
+            is_overtaking = True
+            violation_type = 'overtaking from the left'
+            #au.play_sound('../resources/warning_sounds/overtaking_left.mp3')
+        else:
+            print("no violation")
+            is_overtaking = False
+
+        return is_overtaking, violation_type
+
+
+
+"""
+    def is_overtaking(self, vehicle_center: tuple, line_center: tuple):
+        
+        the function takes a tuple of 'veicle' and 'solid-line' centers
+        and checks if the vehicle is overtaking in non-permitted areas
+        return True if the vehicle is overtaking, False otherwise
+        
+        violation_type = ''
+        is_overtaking = False
+        #first get the line center position based on the x-axis
+        #because the camera captures a 2592x1920 we will consider the threshold to be 1296
+        if line_center[0] < 320 and vehicle_center[0] < line_center[0]:
+            is_overtaking = True
+            violation_type = 'overtaking from the right'
+            #au.play_sound('../resources/warning_sounds/overtaking_right.mp3')
+        elif line_center[0] > 320 and vehicle_center[0] > line_center[0]:
             #meaning that the line is on the left side
             distance = line_center[0] - vehicle_center[0]
             # distance threshold
@@ -63,3 +95,4 @@ class Detect(Audio):
             is_overtaking = False
 
         return is_overtaking, violation_type
+"""
