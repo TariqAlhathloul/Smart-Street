@@ -71,8 +71,8 @@ def get_road_name():
         return None
 
 
-# Au = Audio()
-# latitude, longitude = get_current_location()
-# print(f"Latitude: {latitude}, Longitude: {longitude}")
-# road_name = get_road_name()
-# Au.printAr(road_name)
+Au = Audio()
+latitude, longitude = get_current_location()
+print(f"Latitude: {latitude}, Longitude: {longitude}")
+road_name = get_road_name()
+Au.printAr(road_name)

@@ -15,17 +15,17 @@ os.makedirs('../resources/violation_images', exist_ok=True)
 detect = Detect()
 
 # camera information
-# latitude, longitude = get_current_location()
-# street_name = get_road_name()
-latitude, longitude = " ", " "
-street_name = ""
+latitude, longitude = get_current_location()
+street_name = get_road_name()
+# latitude, longitude = " ", " "
+# street_name = ""
 date = dt.datetime.now().strftime('%Y-%m-%d')
 
 # load model
 model = YOLO('../Models/best(1).onnx', task='segment')
 
 #start video capture
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture('../resources/example_video.MP4')
 assert cap.isOpened(), 'Cannot capture video'
 
 #video properties
@@ -50,6 +50,8 @@ vehicle_center = (1, 1)
 
 #placeholder for the frame
 frame_placeholder = st.empty()
+license_plate_number = None
+vehicle_type = 'car'
 
 while cap.isOpened():
 
@@ -75,16 +77,14 @@ while cap.isOpened():
         if int(box.cls.item()) == 2:
             line_center = detect.get_center(box.xyxy)
             cv2.circle(frame, line_center, 10, (0, 0, 255), -1)
-            #print("line center ", line_center)
 
         # vehicle detected
         elif int(box.cls.item()) == 0:
             vehicle_center = detect.get_center(box.xyxy)
-            is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center)
-            print("vehicle center ", vehicle_center)
-            print("line center ", line_center, is_violating)
+            is_violating, violation_type = detect.is_overtaking(vehicle_center, line_center, width)
+            # print("vehicle center ", vehicle_center)
+            # print("line center ", line_center, is_violating)
             cv2.circle(frame, vehicle_center, 10, (0, 255, 0), -1)
-            cv2.putText(frame, "violation detected !", (20, 650), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
             
 
             if is_violating and line_center != (1, 1):
@@ -96,8 +96,8 @@ while cap.isOpened():
                 x1, y1, x2, y2 = box.xyxy[0]
                 cv2.imwrite(f'../resources/violation_images/violation{counter}.jpg', frame[int(y1):int(y2), int(x1):int(x2)])
                 counter += 1
-                #detect.play_sound(sound)
-
+                detect.play_sound('../resources/beep.mp3')
+                insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
                 #license plate detected
                 if int(box.cls.item()) == 1:
                     # send the cropped image to the ocr model
@@ -106,9 +106,8 @@ while cap.isOpened():
                     vehicle_type = ['bus', 'license_plate','car', 'solid-yellow-line', 'truck'][int(box.cls[0].item())]                    
                     #after having all the information, save it to the database
                     if license_plate_number != None:
-                        print("violation detected !")
                         insert_data(date, current_time.strftime('%H:%M:%S'), license_plate_number, vehicle_type, violation_type, latitude, longitude, street_name)
-    #cv2.imshow('frame', frame)
+
     frame_placeholder.image(frame, channels="BGR")
     
     out.write(frame)

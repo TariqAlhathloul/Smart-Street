@@ -11,8 +11,8 @@ lrwxrwxrwx 1 root root           5 Oct  2 05:16 serial1 -> ttyS0
 """
 
 # connect to the serial port
-port = "/dev/ttyAMA10"
-ser = serial.Serial(port, baudrate=9600, timeout=0.5)
+port = "/dev/ttyAMA0"
+ser = serial.Serial(port, baudrate=9600, timeout=1)
 newdata = ser.readline().decode('ascii', errors='replace').strip()
 
 while True:

@@ -34,7 +34,7 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 
 
 #video writer
-output_path = '../resources/outpus/OUTPUT.mp4'
+output_path = '../resources/OUTPUT.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 

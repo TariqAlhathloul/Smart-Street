@@ -46,7 +46,7 @@ print(f"width: {width}, height: {height}, fps: {fps}")
 output_path = '../resources/video.avi'
 fourcc = cv2.VideoWriter_fourcc(*'XVID')  # MJPG encoding
 out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
+license_plate_number = None
 
 #counter to index saved images
 counter = 0
