@@ -2,12 +2,10 @@ import serial
 import pynmea2
 import time
 
-
 """
 the port connected to GPS module is /dev/ttyAMA0
-command ls -l /dev, and look for serial0 and serial1 ports
-lrwxrwxrwx 1 root root           8 Oct  2 05:16 serial0 -> ttyAMA10
-lrwxrwxrwx 1 root root           5 Oct  2 05:16 serial1 -> ttyS0
+8 Oct  2 05:16 serial0 -> ttyAMA0
+5 Oct  2 05:16 serial1 -> ttyS0
 """
 
 # connect to the serial port
@@ -20,7 +18,7 @@ while True:
         # read a line of data from the serial port
         newdata = ser.readline().decode('ascii', errors='replace').strip()
 
-        # check if the data starts with "$GPRMC" (RMC NMEA sentence)
+        # check if the data starts with "$GPRMC", meaning it is a RMC NMEA sentence
         if newdata[0:6] == "$GPRMC":
             newmsg = pynmea2.parse(newdata)
             lat = newmsg.latitude

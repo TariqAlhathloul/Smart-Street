@@ -4,8 +4,13 @@ from geopy.geocoders import Nominatim
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from chatbot.Audio import Audio
+
+"""
+the port connected to GPS module is /dev/ttyAMA0
+8 Oct  2 05:16 serial0 -> ttyAMA0
+5 Oct  2 05:16 serial1 -> ttyS0
+"""
 
 def get_current_location():
     """
@@ -33,7 +38,6 @@ def get_current_location():
                 else:
                     print("NO GPS DATA")
                     return None, None
-
         except serial.SerialException as e:
             print(f"Serial error: {e}")
             return None, None
@@ -71,8 +75,8 @@ def get_road_name():
         return None
 
 
-Au = Audio()
-latitude, longitude = get_current_location()
-print(f"Latitude: {latitude}, Longitude: {longitude}")
-road_name = get_road_name()
-Au.printAr(road_name)
+# Au = Audio()
+# latitude, longitude = get_current_location()
+# print(f"Latitude: {latitude}, Longitude: {longitude}")
+# road_name = get_road_name()
+# Au.printAr(road_name)
