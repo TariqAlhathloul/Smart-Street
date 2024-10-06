@@ -7,9 +7,10 @@ import re
 apply OCR on the detected violation cars to get the license plate number
 """
 
-# initialize the reader
+#initialize the reader
 reader = easyocr.Reader(['en'], gpu=False, model_storage_directory='../Models')
 
+#create a directory to save the violation car license plate images
 os.makedirs('../resources/cropped_plate_images/', exist_ok=True)
 
 def read_license_plate(image, image_counter):
@@ -46,5 +47,3 @@ def read_license_plate(image, image_counter):
 # image = cv2.imread('../Database/violations_plates/first_model_plate37.jpg')
 # results = read_license_plate(image, 1)
 # print(results)
-# # real license plate number: HRD 7863
-# # output: MT 7862
