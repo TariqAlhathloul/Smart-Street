@@ -48,18 +48,16 @@ class Detect(Audio):
         violation_type = ''
         is_overtaking = False
         #first get the line center position based on the x-axis
-        #because the camera captures a 2592x1920 we will consider the threshold to be 1296
         if line_center[0] > threshold and vehicle_center[0] > line_center[0] - 65:
+            #meaning that the line is on the right side
             is_overtaking = True
             violation_type = 'overtaking from the right'
-            #au.play_sound('../resources/warning_sounds/overtaking_right.mp3')
         elif line_center[0] < threshold and vehicle_center[0] < line_center[0] + 65:
             #meaning that the line is on the left side
             # distance threshold
             is_overtaking = True
             violation_type = 'overtaking from the left'
         else:
-            print("--no violation--")
             is_overtaking = False
 
         return is_overtaking, violation_type
