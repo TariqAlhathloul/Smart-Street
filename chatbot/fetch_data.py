@@ -5,13 +5,13 @@ and store it in a text file
 
 import os
 from dotenv import load_dotenv
+from pymongo import MongoClient
+
+
 load_dotenv()
 #make a directory to store the violations in a txet file
 dir = "./violations_descriptsion_arabic"
 os.makedirs(dir, exist_ok=True)
-
-
-from pymongo import MongoClient
 
 #establish connection to the database
 client = MongoClient(os.getenv('CONNECTION_STRING'))
@@ -20,7 +20,6 @@ db = client['DeepLearningCluster']
 collection = db['Violations-1']  
 
 #retrieve all the documents from the database
-
 documents = collection.find()
 
 # Iterate over documents and create a text file for each
