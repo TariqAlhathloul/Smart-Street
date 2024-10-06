@@ -1,14 +1,14 @@
 """
 fetch data from the database
-and store it in a text file
+and store it in a text file to push it into a vector store
 """
 
 import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
-
-
 load_dotenv()
+
+
 #make a directory to store the violations in a txet file
 dir = "./violations_descriptsion_arabic"
 os.makedirs(dir, exist_ok=True)
