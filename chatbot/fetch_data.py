@@ -35,7 +35,7 @@ f"""{document.get('time')} تم رصد مخالفة مرورية في الوقت
 اسم الطريق {document.get('street_name')} 
 {i}رقم المخالفة""")
     
-    # write to the text file
+    # write to text file
     with open(os.path.join(dir, f'text{i}.txt'), 'w') as file:
         file.write(text)
 
