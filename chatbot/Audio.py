@@ -29,6 +29,7 @@ class Audio:
         #start recording the audio
         print("Listening...")
         recording = sd.rec(int(self.frames), samplerate=self.samplerate, channels=2, dtype='int16')
+        #wait for the recording to finish
         sd.wait()
         print("Finished recording.")
         return recording, self.samplerate

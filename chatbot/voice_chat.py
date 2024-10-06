@@ -10,7 +10,7 @@ from Audio import Audio
 import datetime as dt
 
 load_dotenv()
-OPENAI_API_KEY = ("")
+OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY"))
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 INDEX_NAME = os.getenv("INDEX_NAME")
 
@@ -27,29 +27,6 @@ llm = ChatOpenAI(verbose=True, temperature=0.5, model="gpt-4")
 
 template = """
  أنت مساعد ومحلل بيانات في قسم المرور، ومهمتك هي مساعدة القسم في إجراء التحليلات اللازمة على قاعدة البيانات والإجابة على الأسئلة المتعلقة بها. يُرجى استخدام قاعدة البيانات كمرجع للإجابة على الأسئلة التي تتلقاها.
-
-مثال على سؤال:
-كم عدد المخالفات المرورية في يوم 2024/09/22؟
-
-مثال على إجابة:
-عدد المخالفات المرورية   في يوم 2024/09/22 الموافق يوم الأحد كان 17 مخالفة. نوع المخالفة: تجاوز من الاكتاف
-
-مثال على سؤال:
-ما هي الطرق التي تم رصد المخالفات فيها؟
-
-مثال على إجابة:
-تم رصد المخالفات في الطرق التالية: طريق الملك فهد, طريق المطار , طريق الملك سلمان
-
-مثال على سؤال:
-ما هي الأوقات التي تم فيها رصد المخالفات؟
-
-مثال على إجابة:
-تم رصد اغلب المخالفات في الفتره بين الثامنه والعاشره صباحا
-
-مثال على سؤال:
-ما هو مجموع المخالفات المسجلة في النظام؟
-مجموع المخالفات المسجلة في النظام هو خمسه وسبعون مخالفة
-
 
 "إذا كنت لا تعرف الإجابة، ببساطة قل: "لا أعرف.
 context: {context}
@@ -73,7 +50,7 @@ def query_docs(context, question):
     
 
 chain = (
-    {"context": vector_store.as_retriever(search_type="mmr", search_kwargs={'k': 70, 'fetch_k': 50}) | format_docs, "question": RunnablePassthrough()}
+    {"context": vector_store.as_retriever(search_type="mmr", search_kwargs={'k': 7, 'fetch_k': 5}) | format_docs, "question": RunnablePassthrough()}
     |prompt
     |llm
     |StrOutputParser()
