@@ -31,7 +31,7 @@ def read_license_plate(image, image_counter):
     license_plate_number = []
     for detection in result:
         # fillter results with confidence > 0.2
-        if detection[2] > 0.2:
+        if detection[2] > 0.1:
             license_plate_number.append(detection[1])
 
 
@@ -44,6 +44,6 @@ def read_license_plate(image, image_counter):
     
     return text
 
-# image = cv2.imread('../Database/violations_plates/first_model_plate37.jpg')
+# image = cv2.imread('../Database/violations_plates/plate37.jpg')
 # results = read_license_plate(image, 1)
 # print(results)
